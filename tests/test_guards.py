@@ -188,6 +188,25 @@ class Guards(unittest.TestCase):
         for product in products:
             self.assertEqual(set(product), {"id", "name", "roast"})
 
+    def test_focus_style_needs_purposeful_motion_plans(self):
+        doc = fixture()
+        doc["visual_style"] = "focus_explainer_v2"
+        with self.assertRaisesRegex(ValueError, "motion plan"):
+            validate(doc)
+        ready = json.loads((ROOT / "examples/coffee-fruit.motion.fixture.json").read_text())
+        validate(ready)
+        self.assertEqual(ready["data_class"], "ENGINEERING_FIXTURE")
+        self.assertEqual(ready["production_id"], "VIDEO-2a4a0a918a3f129bcfee50ab")
+        ready["kind"] = "real_footage"
+        with self.assertRaisesRegex(ValueError, "requires animated content"):
+            validate(ready)
+
+    def test_grinding_does_not_silently_use_the_legacy_cup_scene(self):
+        doc = fixture()
+        doc["shots"][0]["scene"] = "grind"
+        with self.assertRaisesRegex(ValueError, "focus explainer renderer"):
+            validate(doc)
+
     def test_owner_wordmark_profile_keeps_master_and_transparency(self):
         from PIL import Image, ImageChops
         from egon_creative.media import logo_for_display

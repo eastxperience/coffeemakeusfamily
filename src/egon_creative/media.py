@@ -65,6 +65,7 @@ def speech(settings, doc, folder, deadline):
         chunks = [r for r in records if r["shot"] == si]
         shots.append({**shot, "start": chunks[0]["start"], "end": chunks[-1]["end"], "duration": chunks[-1]["end"] - chunks[0]["start"]})
     timeline = {"duration": clock, "captions": records, "shots": shots,
+                "visual_style": doc.get("visual_style", "legacy_studio"),
                 "tts": {"provider": "macOS say", "voice": settings.tts_voice, "language": "id-ID", "words_per_minute_setting": 170, "paid_api_idr": 0},
                 "caption_alignment": "Measured per-chunk TTS durations, not word-level forced alignment"}
     (folder / "timeline.json").write_text(json.dumps(timeline, ensure_ascii=False, indent=2))
@@ -101,16 +102,20 @@ def check_layout(doc, timeline):
     draw = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
     if draw.textbbox((0, 0), doc["title"], font=font(35))[2] > 950:
         raise ValueError("Rewrite the title to fit the vertical safe area")
+    motion = doc.get("visual_style") == "focus_explainer_v2"
     for item in timeline["captions"]:
-        if len(wrapped(item["text"], draw, font(48))) > 3:
+        if len(wrapped(item["text"], draw, font(54 if motion else 48))) > (2 if motion else 3):
             raise ValueError("Rewrite subtitle chunk: more than three readable lines")
     for shot in doc["shots"]:
-        if draw.textbbox((0, 0), shot.get("label", "EKSPLORASI KOPI"), font=font(44))[2] > 850:
+        if draw.textbbox((0, 0), shot.get("label", "EKSPLORASI KOPI"), font=font(60 if motion else 44))[2] > 850:
             raise ValueError("Rewrite scene label to fit the vertical safe area")
 
 
 def overlays(settings, doc, timeline, folder, deadline, has_logo):
     check_layout(doc, timeline)
+    if doc.get("visual_style") == "focus_explainer_v2":
+        from .motion_typography import overlays as focus_overlays
+        return focus_overlays(settings, doc, timeline, folder, deadline, has_logo)
     overlays_dir = folder / "overlays"
     overlays_dir.mkdir()
     files, spans = [], []
@@ -221,7 +226,10 @@ def edit(settings, doc, timeline, folder, deadline, logo):
     if logo:
         # ICC is a display transform, not an artistic palette change; the master stays byte-identical.
         inputs += ["-loop", "1", "-i", logo_for_display(logo, folder)]
-        filters += ["[5:v]scale=w=350:h=220:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=(W-w)/2:110[official]"]
+        if doc.get("visual_style") == "focus_explainer_v2":
+            filters += ["[5:v]scale=w=240:h=145:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=W-w-76:70[official]"]
+        else:
+            filters += ["[5:v]scale=w=350:h=220:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=(W-w)/2:110[official]"]
         output = "official"
     filters += [f"[{output}]format=yuv420p[vout]", "[3:a][4:a]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11[aout]"]
     result = folder / "EGON_REEL.mp4"

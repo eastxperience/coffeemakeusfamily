@@ -7,3 +7,7 @@ Use an atomic queue, bounded process lifetime and budget reservation before work
 Optional Google Flow is manual only: export a brief, let an authorised person use Flow, then import an owned/provenance-tagged clip. Never assume an accessible Flow API, free credits, or zero cost for paid external work. Default local production does not call Flow.
 
 Real brewing/product work must use registered real footage; don't present generated animation as real. Missing/short footage blocks that job rather than inventing actions or silently looping evidence. Emit assets for Audio & Editing, not publication approval.
+
+## Motion explainer reference update
+
+The additive focus_explainer_v2 renderer supports object close-ups, fruit reveal, roast transition, simplified grinding and an illustrative pour-over. Require primary_action, camera and learning_purpose per shot. Preserve native-frame/render provenance, cumulative budget and old renderer/output history. Follow docs/MOTION_EXPLAINER_STANDARD_V1.md; do not claim its visual target passed automatically.

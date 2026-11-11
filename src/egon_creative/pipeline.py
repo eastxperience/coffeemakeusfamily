@@ -33,7 +33,8 @@ def render_lock(path, deadline):
 
 def animated(settings, timeline, folder, deadline):
     frames = folder / "frames"
-    script = Path(__file__).parent / "blender/render_scene.py"
+    name = "render_focus.py" if timeline.get("visual_style") == "focus_explainer_v2" else "render_scene.py"
+    script = Path(__file__).parent / "blender" / name
     with render_lock(settings.state_dir / "blender.lock", deadline):
         deadline.run([settings.blender, "--background", "--factory-startup", "--python-exit-code", "1", "--python", script,
                       "--", "--timeline", folder / "timeline.json", "--output", frames,
@@ -118,6 +119,7 @@ def quality(settings, doc, timeline, folder, result, raw_frames, deadline, logo)
           "visual_review": "HUMAN_REVIEW_REQUIRED", "technical_pass_is_visual_approval": False,
           "data_class": doc["data_class"], "deployed": False, "published": False,
           "known_paid_api_idr": 0, "output_sha256": file_hash(result)}
+    qa["visual_style"] = doc.get("visual_style", "legacy_studio")
     if (folder / "logo-display.json").is_file():
         qa["logo_display"] = json.loads((folder / "logo-display.json").read_text())
     (folder / "QA.json").write_text(json.dumps(qa, ensure_ascii=False, indent=2))

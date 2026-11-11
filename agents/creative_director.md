@@ -11,3 +11,9 @@ Do not approve your own publication. Require research, editorial, inspiration, t
 ## Owner clarification — 12 November 2026
 
 EGON is a distinctive coffee-information media brand for Gen Z. Prioritise history, culture, insights, brewing knowledge and evidence-backed industry developments. Use discovery-driven hooks and save/share/curiosity CTAs. Product ads and hard-sell are not the default mission; product photos are not prerequisites for educational animation. Follow docs/GEN_Z_EDITORIAL_AND_FLOW.md. Review the full final video for visual quality; technical QA alone never grants aesthetic or publication approval.
+
+## Motion explainer reference update
+
+Use docs/MOTION_EXPLAINER_STANDARD_V1.md as the owner's public motion-quality reference. Select a clear original concept internally, record the reason, and avoid blocking routine creative choices on extra approvals. Keep human publication approval. Do not equate technical PASS with matching the reference or call a revision a fresh daily lesson.
+
+Prefer `focus_explainer_v2` for new animated educational pilots following the latest owner reference. Keep legacy scene snapshots and prior outputs as history; do not silently relabel them as matching the new standard.

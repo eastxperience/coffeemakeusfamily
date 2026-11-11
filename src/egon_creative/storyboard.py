@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 GATES = ("EDITORIAL_FIT", "INSPIRATION_FIT", "TRUTHFUL_AUTHORITY", "NOVELTY")
 KINDS = ("animated", "real_footage", "static")
-SCENES = ("cherry", "green", "roast", "brew", "explore")
+SCENES = ("cherry", "green", "roast", "grind", "brew", "explore")
 
 
 def plan_mix(blocks=1):
@@ -25,6 +25,11 @@ def validate(doc):
         raise ValueError("Missing title")
     if doc.get("language") != "id-ID":
         raise ValueError("Indonesian narration is required")
+    style = doc.get("visual_style", "legacy_studio")
+    if style not in {"legacy_studio", "focus_explainer_v2"}:
+        raise ValueError("Unknown visual style")
+    if style == "focus_explainer_v2" and doc["kind"] != "animated":
+        raise ValueError("Focus 3D explainer style requires animated content; real footage uses its verified route")
     duration = doc.get("target_seconds", 40)
     if not isinstance(duration, (float, int)) or not math.isfinite(duration) or not 30 <= duration <= 60:
         raise ValueError("Default pilot duration must be 30–60 seconds")
@@ -54,6 +59,10 @@ def validate(doc):
     for shot in shots:
         if shot.get("scene") not in SCENES:
             raise ValueError("Unknown reusable scene")
+        if shot["scene"] == "grind" and style != "focus_explainer_v2":
+            raise ValueError("Grinding scene requires the focus explainer renderer")
+        if style == "focus_explainer_v2" and not all(shot.get("motion_plan", {}).get(k) for k in ["primary_action", "camera", "learning_purpose"]):
+            raise ValueError("Focus explainer requires a purposeful motion plan per shot")
         chunks = shot.get("narration", [])
         if not isinstance(chunks, list) or not chunks or any(not isinstance(t, str) or not t.strip() for t in chunks):
             raise ValueError("Each shot needs explicit narration/subtitle chunks")

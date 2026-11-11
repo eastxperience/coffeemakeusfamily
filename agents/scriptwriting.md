@@ -9,3 +9,7 @@ Deliver schema-v1 storyboard with stable production_id, data_class, language=id-
 Local deterministic production consumes reviewed scripts. Optional Gemini generates DRAFT proposals only; its output must not mark its own sources opened or gates passed.
 
 For Gen Z coffee media, open with the actual question/reveal in the first two seconds. Use contemporary Indonesian without forced slang. Short beats should each add information; history distinguishes records from legend, and trends name the place, period and scope of evidence. CTA builds curiosity or invites saving/sharing, with no invented sales urgency.
+
+## Motion explainer reference update
+
+Plan six to eight purposeful shots around one discovery, with short natural narration chunks. Every beat adds a useful point and specifies the matching visual action. Trim repetitive conclusions and prolonged static endings. Duration is measured from speech; the storyboard estimate is not a final runtime.

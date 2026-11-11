@@ -13,14 +13,17 @@ python3.12 -m venv .venv
 .venv/bin/python -m pip install -e .
 .venv/bin/egon-creative doctor
 .venv/bin/egon-creative plan --blocks 1
-.venv/bin/egon-creative enqueue examples/coffee-fruit.fixture.json
+.venv/bin/egon-creative register-logo assets/brand/EGON_WORDMARK_ORIGINAL.png \
+  --sha256 301dc7c06831daad76a849775ecd7bab2711af7b0ec335ee9c33f9caff1159ad \
+  --owner-confirmed --source-ref "Owner supplied complete EGON wordmark, 12 November 2026"
+.venv/bin/egon-creative enqueue examples/coffee-fruit.motion.fixture.json
 .venv/bin/egon-creative work
 .venv/bin/egon-creative serve --port 8765
 ```
 
 Dashboard: <http://127.0.0.1:8765>. It is read-only and binds only to the local computer. State defaults to `~/.local/share/egon-creative/production.sqlite3`. Override paths using the documented `EGON_*` environment variables in [.env.example](.env.example); the app reads the process environment, not an arbitrary credentials file.
 
-The fixture is marked **ENGINEERING_FIXTURE** and cannot be approved for publication. Its visible missing-logo banner is intentional. It does not count as a published lesson, a novel production angle, or measured marketing performance.
+The fixture is marked **ENGINEERING_FIXTURE** and cannot be approved for publication. The generic legacy fixture shows a missing-logo banner when no canonical asset is registered; the focus-style fixture requires the exact complete-logo hash. It does not count as a published lesson, a novel production angle, or measured marketing performance.
 
 For the owner-supplied branded Gen Z pilot, register the unchanged `assets/brand/EGON_WORDMARK_ORIGINAL.png` using the SHA-256 in `assets/brand/canonical.json`, then enqueue `examples/coffee-fruit.genz.fixture.json`. Generic fixtures show the missing-logo banner only when no canonical asset is registered; branded fixtures require the exact supplied hash. The complete owner-supplied wordmark is the current canonical asset. Earlier symbol-only assets and fixture snapshots are retained as history in `assets/brand/` and `examples/archive/`.
 
@@ -44,9 +47,11 @@ The mix planner produces **7 animated / 2 real-footage / 1 static** unit per blo
 | `gemini.py` | Optional free-only, source-unverified drafting; disabled by default |
 | `manual_flow.py` | Manual brief export and provenance-tagged clip import; no Flow API |
 
-Storyboard, narration, scene instructions, source mappings and input versions are frozen by content hash. Revisions create new job versions sharing the same stable `production_id`; cost ceilings include earlier versions and retries. The default visual preset uses **Eevee soft lighting and 24 native frames per second**, encoded at 24 fps. Workbench is an explicit engineering option, not the visual release standard. The renderer currently implements five reusable educational scenes; a history or trend requiring other scenes needs new reviewed scene code/assets.
+Storyboard, narration, scene instructions, source mappings and input versions are frozen by content hash. Revisions create new job versions sharing the same stable `production_id`; cost ceilings include earlier versions and retries. The default visual preset uses **Eevee soft lighting and 24 native frames per second**, encoded at 24 fps. Workbench is an explicit engineering option, not the visual release standard. The legacy studio renderer remains available. The additive `focus_explainer_v2` style adds closer object framing, purposeful motion, short animated caption groups and a schematic grinding scene. Six scene types are available; a history or trend requiring other assets still needs reviewed scene code/assets.
 
 The owner's latest direction is **coffee history, insights, industry developments and knowledge for Gen Z**. Teach one useful, surprising fact with a confident warm Indonesian voice and original visuals. Do not turn the media brief into a product-advertising or hard-sell requirement. See [editorial direction and Flow adaptation](docs/GEN_Z_EDITORIAL_AND_FLOW.md).
+
+For the owner's object-led motion reference, see [motion standard](docs/MOTION_EXPLAINER_STANDARD_V1.md) and `examples/coffee-fruit.motion.fixture.json`. Its new renderer is additive and retains all older clips. The local pilot's visual/voice/pacing quality still needs owner review.
 
 ## Logo, sources, and publication
 
