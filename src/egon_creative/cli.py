@@ -60,6 +60,12 @@ def main(argv=None):
     p = sub.add_parser("metrics")
     p.add_argument("job_id")
     p.add_argument("measurement", type=Path)
+    p = sub.add_parser("record-cost")
+    p.add_argument("job_id")
+    p.add_argument("--amount-idr", type=float, required=True)
+    p.add_argument("--category", choices=["manual_local_preview", "manual_external_generation"], required=True)
+    p.add_argument("--basis", choices=["ESTIMATE", "KNOWN_ACTUAL"], required=True)
+    p.add_argument("--source-ref", required=True)
     p = sub.add_parser("serve")
     p.add_argument("--port", type=int, default=8765)
     p = sub.add_parser("gemini-draft")
@@ -105,6 +111,8 @@ def main(argv=None):
     elif args.command == "metrics":
         from .performance import ingest
         result = {"measurement_id": ingest(store, args.job_id, json.loads(args.measurement.read_text()))}
+    elif args.command == "record-cost":
+        result = {**store.record_expense(args.job_id, args.amount_idr, args.category, args.basis, args.source_ref), "provider_called": False, "payment_made": False}
     elif args.command == "serve":
         from .dashboard import serve
         serve(store, args.port)

@@ -181,6 +181,30 @@ class Store:
                         (status, now(), str(output) if output else None, sha, canonical(qa) if qa else None, error, job_id))
             self.event(con, job_id, status, {"output_sha256": sha, "error": error})
 
+    def record_expense(self, job_id, amount, category, basis, source_ref):
+        """Reconcile an existing cost; this never calls or pays an external provider."""
+        if not math.isfinite(amount) or amount < 0 or basis not in {"ESTIMATE", "KNOWN_ACTUAL"} or not source_ref.strip():
+            raise ValueError("Finite expense, evidence reference and explicit accounting basis required")
+        if category not in {"manual_local_preview", "manual_external_generation"}:
+            raise ValueError("Unsupported manual expense category")
+        detail = canonical({"source_ref": source_ref, "scope": "reconciled cost only; no provider call or payment"})
+        with self.connect() as con:
+            con.execute("BEGIN IMMEDIATE")
+            job = con.execute("SELECT video_id,attempts FROM jobs WHERE id=?", (job_id,)).fetchone()
+            if not job:
+                raise KeyError(job_id)
+            prior = con.execute("SELECT amount_idr,basis FROM costs WHERE job_id=? AND category=? AND detail=?", (job_id, category, detail)).fetchone()
+            if prior:
+                if prior[0] != amount or prior[1] != basis:
+                    raise ValueError("Expense reference already has a different immutable amount/basis")
+                return {"status": "ALREADY_RECORDED"}
+            used = con.execute("SELECT COALESCE(SUM(c.amount_idr),0) FROM costs c JOIN jobs j ON c.job_id=j.id WHERE j.video_id=? AND c.released=0", (job[0],)).fetchone()[0]
+            if used + amount > 25000:
+                raise ValueError("COST_CEILING: expense plus cumulative costs/reservations exceeds ceiling")
+            con.execute("INSERT INTO costs(job_id,attempt,category,amount_idr,basis,detail,created_at) VALUES(?,?,?,?,?,?,?)", (job_id, job[1], category, amount, basis, detail, now()))
+            self.event(con, job_id, "EXPENSE_RECONCILED", {"amount_idr": amount, "basis": basis, "category": category, "source_ref": source_ref})
+            return {"status": "RECORDED"}
+
     def retry(self, job_id):
         with self.connect() as con:
             con.execute("BEGIN IMMEDIATE")

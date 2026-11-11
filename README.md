@@ -75,6 +75,7 @@ This requires the human to review the entire final video, voice, captions and pa
 - Default paid API spend: **IDR 0**. Blender, speech, SFX and editing run locally.
 - Ceiling: **IDR 25,000 per video**, including attempts and revisions sharing the same production ID.
 - A reservation covers the configured bounded process deadline before render work starts. Retries keep past costs. Over-budget work is blocked.
+- `record-cost JOB_ID --amount-idr AMOUNT --category manual_local_preview --basis ESTIMATE --source-ref "Evidence/assumption"` reconciles auxiliary preview costs without calling/paying a provider. External generation can be logged separately as `manual_external_generation`, with its actual or estimated basis. Repeated evidence references are idempotent and share the ceiling.
 - Known API charges, estimates, reservations and released reservations are recorded separately. Local power is an explicit configurable estimate (pilot assumptions: 300 W and IDR 3,000/kWh), not a metered bill; labour, depreciation and pre-existing subscription costs are not claimed as measured.
 - `EGON_GEMINI_ENABLED=free-only` is optional. An OAuth token, explicit project/model, today's model free-tier check and a live unbilled-project check are required before a generation request. Quota/errors stop this path; no paid fallback, billing setup or key changes occur. Live Gemini has not been exercised without authorised credentials.
 
@@ -97,6 +98,8 @@ egon-creative metrics JOB_ID observed-instagram-export.json
 Measurements need `source_ref`, `observed_at`, and nullable observed counts: `reach`, `plays`, `saves`, `shares`, `completed_plays`, `attributed_orders`, `attributed_sales_idr`, `average_watch_seconds`, `video_seconds`, and optionally an observed `retention_curve`. Sales need `attribution_evidence`. Completion is completed plays / plays; average watch ratio is separate and may exceed 1 with replays. Missing metrics stay null. No Instagram analytics connection or sales uplift is fabricated.
 
 `tools/migrate_legacy_creative.py LEGACY_ROOT --backup-dir PRIVATE_BACKUP_DIR` appends the V5 Creative handoff once and saves the original hash/backup. It never opens financial ledgers or changes Notion/Sheets/Make schemas, credentials, sharing or live schedules. The original V1 documentation remains historical. Review the pilot and choose cadence before cutting over the old poster automation.
+
+See the [production and review runbook](docs/PRODUCTION_RUNBOOK.md) for the complete local handoff and failure procedure.
 
 ## Verification
 

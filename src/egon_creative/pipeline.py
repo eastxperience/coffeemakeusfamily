@@ -149,6 +149,7 @@ def worker_once(store, settings):
         (folder / "storyboard.json").write_text(json.dumps(doc, ensure_ascii=False, indent=2))
         (folder / "prompt.txt").write_text(doc["visual_prompt"])
         timeline = media.speech(settings, doc, folder, deadline)
+        media.check_layout(doc, timeline)
         frames = animated(settings, timeline, folder, deadline) if doc["kind"] == "animated" else real_footage(store, settings, timeline, folder, deadline)
         result = media.edit(settings, doc, timeline, folder, deadline, logo)
         qa = quality(settings, doc, timeline, folder, result, frames, deadline, logo)

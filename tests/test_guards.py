@@ -79,6 +79,18 @@ class Guards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "COST_CEILING"):
             self.store.reserve(other, 1, 25000)
 
+    def test_manual_costs_are_idempotent_and_share_the_ceiling(self):
+        job = self.store.enqueue(fixture())
+        args = (job, 75, "manual_local_preview", "ESTIMATE", "isolated test preview allowance")
+        self.assertEqual(self.store.record_expense(*args)["status"], "RECORDED")
+        self.assertEqual(self.store.record_expense(*args)["status"], "ALREADY_RECORDED")
+        self.assertEqual(len(self.store.snapshot()["costs"]), 1)
+        with self.assertRaisesRegex(ValueError, "different immutable"):
+            self.store.record_expense(job, 76, *args[2:])
+        self.store.claim("test")
+        with self.assertRaisesRegex(ValueError, "COST_CEILING"):
+            self.store.reserve(job, 25000, 25000)
+
     def test_invalid_and_nan_budgets_rejected(self):
         for amount in [25001, 0, float("nan")]:
             with self.assertRaises(ValueError):

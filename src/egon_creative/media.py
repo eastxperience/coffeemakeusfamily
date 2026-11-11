@@ -94,7 +94,21 @@ def wrapped(text, draw, fnt, max_width=830):
     return lines
 
 
+def check_layout(doc, timeline):
+    """Reject unreadable copy before spending time on the 3D render."""
+    draw = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    if draw.textbbox((0, 0), doc["title"], font=font(35))[2] > 950:
+        raise ValueError("Rewrite the title to fit the vertical safe area")
+    for item in timeline["captions"]:
+        if len(wrapped(item["text"], draw, font(48))) > 3:
+            raise ValueError("Rewrite subtitle chunk: more than three readable lines")
+    for shot in doc["shots"]:
+        if draw.textbbox((0, 0), shot.get("label", "EKSPLORASI KOPI"), font=font(44))[2] > 850:
+            raise ValueError("Rewrite scene label to fit the vertical safe area")
+
+
 def overlays(settings, doc, timeline, folder, deadline, has_logo):
+    check_layout(doc, timeline)
     overlays_dir = folder / "overlays"
     overlays_dir.mkdir()
     files, spans = [], []
