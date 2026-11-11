@@ -118,6 +118,8 @@ def quality(settings, doc, timeline, folder, result, raw_frames, deadline, logo)
           "visual_review": "HUMAN_REVIEW_REQUIRED", "technical_pass_is_visual_approval": False,
           "data_class": doc["data_class"], "deployed": False, "published": False,
           "known_paid_api_idr": 0, "output_sha256": file_hash(result)}
+    if (folder / "logo-display.json").is_file():
+        qa["logo_display"] = json.loads((folder / "logo-display.json").read_text())
     (folder / "QA.json").write_text(json.dumps(qa, ensure_ascii=False, indent=2))
     return qa
 

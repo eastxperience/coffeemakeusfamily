@@ -1,5 +1,7 @@
 """Local Indonesian speech, original SFX and native FFmpeg overlays."""
 import array
+import hashlib
+import io
 import json
 import math
 from pathlib import Path
@@ -9,7 +11,7 @@ import shutil
 import textwrap
 import wave
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageCms, ImageDraw, ImageFont
 
 from .process import probe
 
@@ -177,6 +179,39 @@ def sfx(timeline, path):
         out.writeframes(samples.tobytes())
 
 
+def logo_for_display(logo, folder):
+    """Honor embedded ICC for video display while preserving the canonical master."""
+    source = Path(logo["path"])
+    original_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    if original_hash != logo["sha256"]:
+        raise ValueError("Canonical logo changed before composition")
+    result = source
+    record = {"canonical_sha256": original_hash, "canonical_master_unchanged": True,
+              "artistic_changes": False, "crop": False, "redraw": False,
+              "display_conversion": "none; untagged source treated as sRGB"}
+    with Image.open(source) as im:
+        profile = im.info.get("icc_profile")
+        if profile:
+            src_profile = ImageCms.ImageCmsProfile(io.BytesIO(profile))
+            dst_profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB"))
+            rgba = im.convert("RGBA")
+            display = ImageCms.profileToProfile(rgba, src_profile, dst_profile,
+                                              renderingIntent=ImageCms.Intent.RELATIVE_COLORIMETRIC,
+                                              outputMode="RGBA", inPlace=False)
+            if display.size != rgba.size or ImageChops.difference(display.getchannel("A"), rgba.getchannel("A")).getbbox():
+                raise ValueError("Logo display conversion changed geometry or transparency")
+            result = folder / "logo-display-srgb.png"
+            display.save(result, icc_profile=dst_profile.tobytes())
+            record.update({"source_profile": ImageCms.getProfileName(src_profile).strip(),
+                           "display_profile": "sRGB", "display_conversion": "embedded ICC to sRGB",
+                           "geometry_and_alpha_unchanged": True,
+                           "display_sha256": hashlib.sha256(result.read_bytes()).hexdigest()})
+    if hashlib.sha256(source.read_bytes()).hexdigest() != original_hash:
+        raise ValueError("Canonical master changed during display conversion")
+    (folder / "logo-display.json").write_text(json.dumps(record, indent=2))
+    return result
+
+
 def edit(settings, doc, timeline, folder, deadline, logo):
     overlays(settings, doc, timeline, folder, deadline, bool(logo))
     sfx(timeline, folder / "sfx.wav")
@@ -184,8 +219,8 @@ def edit(settings, doc, timeline, folder, deadline, logo):
     filters = ["[0:v]fps=24,setsar=1[base]", "[base][1:v]overlay=0:0:shortest=1[captioned]", "[captioned][2:v]overlay=0:0[branded]"]
     output = "branded"
     if logo:
-        # Original file is read directly, uniformly scaled for layout, never recoloured/redrawn/cropped.
-        inputs += ["-loop", "1", "-i", logo["path"]]
+        # ICC is a display transform, not an artistic palette change; the master stays byte-identical.
+        inputs += ["-loop", "1", "-i", logo_for_display(logo, folder)]
         filters += ["[5:v]scale=w=350:h=220:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=(W-w)/2:110[official]"]
         output = "official"
     filters += [f"[{output}]format=yuv420p[vout]", "[3:a][4:a]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11[aout]"]

@@ -22,7 +22,7 @@ Dashboard: <http://127.0.0.1:8765>. It is read-only and binds only to the local 
 
 The fixture is marked **ENGINEERING_FIXTURE** and cannot be approved for publication. Its visible missing-logo banner is intentional. It does not count as a published lesson, a novel production angle, or measured marketing performance.
 
-For the owner-supplied branded Gen Z pilot, register the unchanged `assets/brand/EGON_SYMBOL_ORIGINAL.png` using the SHA-256 in `assets/brand/canonical.json`, then enqueue `examples/coffee-fruit.genz.fixture.json`. Generic fixtures show the missing-logo banner only when no canonical asset is registered; branded fixtures require the exact supplied hash.
+For the owner-supplied branded Gen Z pilot, register the unchanged `assets/brand/EGON_WORDMARK_ORIGINAL.png` using the SHA-256 in `assets/brand/canonical.json`, then enqueue `examples/coffee-fruit.genz.fixture.json`. Generic fixtures show the missing-logo banner only when no canonical asset is registered; branded fixtures require the exact supplied hash. The complete owner-supplied wordmark is the current canonical asset. Earlier symbol-only assets and fixture snapshots are retained as history in `assets/brand/` and `examples/archive/`.
 
 ## Workflow and seven agents
 
@@ -58,7 +58,7 @@ egon-creative register-logo /absolute/path/original-logo.png \
   --source-ref "Owner-provided canonical asset, date/reference"
 ```
 
-The original bytes are hashed and read directly during FFmpeg editing. Only proportional layout scaling is used; no recolouring, redraw or cropping. A changed file fails the gate. Never crop a logo from an AI-generated poster. A missing logo blocks real production before render spend. Fixtures may exercise the renderer with a prominent test banner but cannot be approved.
+The original master bytes are hashed and retained unchanged. Embedded ICC profiles are honoured through an sRGB display copy for FFmpeg, preserving geometry and transparency; an untagged source is read directly. Only proportional layout scaling is used, with no artistic recolouring, redraw or cropping. A changed file fails the gate. Never crop a logo from an AI-generated poster. A missing logo blocks real production before render spend. Fixtures may exercise the renderer with a prominent test banner but cannot be approved.
 
 Research verification remains a named upstream review backed by opened primary evidence; Python validates the evidence structure, not scientific truth. Production also requires a semantic novelty review with actual ledger/draft comparisons. Blank gates and unverified source/novelty state stop rendering. See [migration plan](docs/MIGRATION_PLAN.md) and [sources](docs/SOURCES.md).
 

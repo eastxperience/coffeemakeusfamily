@@ -188,6 +188,25 @@ class Guards(unittest.TestCase):
         for product in products:
             self.assertEqual(set(product), {"id", "name", "roast"})
 
+    def test_owner_wordmark_profile_keeps_master_and_transparency(self):
+        from PIL import Image, ImageChops
+        from egon_creative.media import logo_for_display
+        from egon_creative.store import file_hash
+        source = ROOT / "assets/brand/EGON_WORDMARK_ORIGINAL.png"
+        sha = file_hash(source)
+        display_path = logo_for_display({"path": str(source), "sha256": sha}, self.root)
+        self.assertEqual(file_hash(source), sha)
+        with Image.open(source) as original, Image.open(display_path) as display:
+            self.assertEqual(display.size, original.size)
+            self.assertIsNone(ImageChops.difference(original.getchannel("A"), display.getchannel("A")).getbbox())
+            self.assertEqual(original.getpixel((300, 800)), (236, 97, 53, 255))
+            red, green, blue, alpha = display.getpixel((300, 800))
+            self.assertGreaterEqual(red, 250)
+            self.assertTrue(65 <= green <= 95 and blue < 35 and alpha == 255)
+        provenance = json.loads((self.root / "logo-display.json").read_text())
+        self.assertEqual(provenance["source_profile"], "Display P3")
+        self.assertTrue(provenance["canonical_master_unchanged"])
+
     def test_metrics_use_correct_denominator_and_evidence(self):
         job = self.store.enqueue(fixture())
         measurement = {"source_ref": "synthetic-unit-fixture", "observed_at": "2026-11-12T00:00:00+07:00", "reach": 6, "plays": 10, "completed_plays": 4,

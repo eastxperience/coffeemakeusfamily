@@ -12,3 +12,7 @@ Checked 12 November 2026, Asia/Jakarta. Undated pages are not evidence of new in
 CTMVerse could not be identified reliably from the provided name. This is an unverified reference request, not a claim of having reviewed or matched its artwork. All pilot characters/environments/SFX are generated from original local code.
 
 Owner-confirmed product names and roast labels come directly from the 12 November request, not an inferred catalogue. Additional product specifications remain unknown. No canonical logo existed at initial audit. The owner then supplied an original RGBA PNG in this chat; the exact unchanged asset is retained in `assets/brand/EGON_SYMBOL_ORIGINAL.png`, SHA-256 `ce4cb70604eb48ac37712c72e17b74f9149371ec1dffb1b4fffcc5a5394b1bf7`. Generated poster marks are excluded.
+
+The owner subsequently supplied the complete EGON COFFEE wordmark on 12 November 2026. The unchanged RGBA PNG (2395×1381) is retained as `assets/brand/EGON_WORDMARK_ORIGINAL.png`, SHA-256 `301dc7c06831daad76a849775ecd7bab2711af7b0ec335ee9c33f9caff1159ad`, and is now the default canonical logo. The earlier symbol and rendered pilot remain archived. No redraw, crop, recolouring or background removal was performed.
+
+Colour-management reference: [Pillow ImageCms](https://pillow.readthedocs.io/en/stable/reference/ImageCms.html), checked 12 November 2026. The wordmark contains a Display P3 profile. The compositor honours that profile in an sRGB display copy, preserving original master bytes, geometry and alpha. This is a display colour transform, not an artistic palette change.
