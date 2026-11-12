@@ -1,5 +1,9 @@
 # EGON motion explainer standard — 12 November 2026
 
+## Owner visual rejection and revised direction
+
+The owner rejected the 36-second `focus_explainer_v2` pilot and requested an **explainer perspective with colourful cartoon motion for Gen Z**. The earlier technical checks remain factual, but that output is not an accepted visual benchmark. Its dark studio treatment and old mascot must not be promoted as the approved template. The colourful cartoon study explores a bright explanatory fruit → seed reveal with short kinetic labels and original local SFX. Its 12-second scope is deliberate: this is a visual proof, not a completed production episode or permission to publish. Review the actual clip; colour changes alone do not establish quality.
+
 Owner reference: [Motion Format public showcase](https://motionformat.com/motion-course). Its public page presents 3D/isometric educational shorts and a brief → concept → script → audio → animation workflow. Two public embedded examples were visually sampled: a ship cutaway and an isometric engine breakdown. The observed strengths were object-led scenes, revealing internal parts, concise labels and changes of visual focus. This is a study of public examples, not access to or verification of the paid course/skill. No reference artwork, video, voice, code or proprietary instruction package is imported into EGON.
 
 The targets below are EGON design choices, not measured retention results or timing statistics from the reference.

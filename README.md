@@ -4,6 +4,8 @@ An additive Python video-production module for the existing EGON Coffee AI Busin
 
 **Status: local engineering pilot, not deployed.** The full local render has been exercised. The owner supplied the canonical logo during implementation; its original PNG and hash are retained in `assets/brand/`. No Instagram publisher or active production schedule is included.
 
+**Latest visual review:** the owner rejected the 36-second pilot and requested a colourful cartoon explainer for Gen Z. The engineering fixtures below remain reproducible history, not approved artwork. See the separate [12-second cartoon style study](docs/COLOURFUL_CARTOON_STUDY.md); it does not count as a completed production episode or relax publishing/duration guards.
+
 ## Start locally
 
 Requirements: Python 3.10+ (pilot tested with 3.12), official Blender 4.5+, FFmpeg/FFprobe, a local TrueType font, and local Indonesian speech. The current TTS adapter supports macOS `say` with Damayanti (`id_ID`). Linux/Windows need a local Indonesian TTS adapter; they do not fall back to a paid API.

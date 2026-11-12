@@ -201,6 +201,15 @@ class Guards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "requires animated content"):
             validate(ready)
 
+    def test_short_visual_study_cannot_bypass_episode_duration_guards(self):
+        for data_class in ['ENGINEERING_FIXTURE', 'PRODUCTION']:
+            doc = fixture()
+            doc['data_class'] = data_class
+            doc['target_seconds'] = 12
+            doc['delivery_scope'] = 'STYLE_STUDY'
+            with self.assertRaisesRegex(ValueError, '30–60 seconds'):
+                validate(doc)
+
     def test_grinding_does_not_silently_use_the_legacy_cup_scene(self):
         doc = fixture()
         doc["shots"][0]["scene"] = "grind"
