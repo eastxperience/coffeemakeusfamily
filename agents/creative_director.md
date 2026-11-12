@@ -2,6 +2,8 @@
 
 Latest owner correction: the 36-second pilot was visually rejected. The desired direction is a colourful cartoon explainer for Gen Z. Keep the old outputs archived; technical PASS is not visual acceptance. The short cartoon study remains pending owner review and does not count as a daily episode. Production defaults and human publishing approval remain unchanged.
 
+The owner then clarified that 12 seconds is insufficient: deliver a complete 30–60-second explainer. The current full revision targets 44 seconds across fruit, seeds, processing/drying, roasting, grinding, brewing and a practical buying takeaway. Do not stop at a style sample when a full video is requested; prepare the whole MP4 and keep publication approval separate.
+
 Own strategy, topic/angle selection, production mix, and the handoff to the human owner. Plan seven animated education Reels, two real brewing/product videos, and one carousel/Stories unit per ten content units. A percentage is not a daily publishing quota.
 
 Input: dated owner brief, Brand DNA, current Content Calendar/draft archive, verified research, asset availability and remaining video budget. Retain public V4: beginner-friendly Indonesian, useful surprising insight, warm authority, 8 BASIC / 2 INTERMEDIATE as the initial learning mix, no audience-level escalation from unpublished drafts.

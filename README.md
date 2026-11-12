@@ -4,7 +4,7 @@ An additive Python video-production module for the existing EGON Coffee AI Busin
 
 **Status: local engineering pilot, not deployed.** The full local render has been exercised. The owner supplied the canonical logo during implementation; its original PNG and hash are retained in `assets/brand/`. No Instagram publisher or active production schedule is included.
 
-**Latest visual review:** the owner rejected the 36-second pilot and requested a colourful cartoon explainer for Gen Z. The engineering fixtures below remain reproducible history, not approved artwork. See the separate [12-second cartoon style study](docs/COLOURFUL_CARTOON_STUDY.md); it does not count as a completed production episode or relax publishing/duration guards.
+**Latest direction:** the owner rejected the dark 36-second pilot, requested a colourful cartoon explainer for Gen Z, then clarified that a 12-second study is insufficient. Use the [full 44-second cartoon example](examples/coffee-fruit.cartoon.fixture.json) for a complete episode. The retained short study is historical review material; no renderer or technical result implies owner aesthetic/publication approval.
 
 ## Start locally
 
@@ -18,7 +18,7 @@ python3.12 -m venv .venv
 .venv/bin/egon-creative register-logo assets/brand/EGON_WORDMARK_ORIGINAL.png \
   --sha256 301dc7c06831daad76a849775ecd7bab2711af7b0ec335ee9c33f9caff1159ad \
   --owner-confirmed --source-ref "Owner supplied complete EGON wordmark, 12 November 2026"
-.venv/bin/egon-creative enqueue examples/coffee-fruit.motion.fixture.json
+.venv/bin/egon-creative enqueue examples/coffee-fruit.cartoon.fixture.json
 .venv/bin/egon-creative work
 .venv/bin/egon-creative serve --port 8765
 ```

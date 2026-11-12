@@ -11,7 +11,7 @@ from unittest.mock import patch
 from egon_creative.config import Settings
 from egon_creative.gemini import FreeTierBlocked, draft
 from egon_creative.performance import ingest
-from egon_creative.store import Store
+from egon_creative.store import Store, file_hash
 from egon_creative.storyboard import plan_mix, validate
 
 ROOT = Path(__file__).parents[1]
@@ -209,6 +209,34 @@ class Guards(unittest.TestCase):
             doc['delivery_scope'] = 'STYLE_STUDY'
             with self.assertRaisesRegex(ValueError, '30–60 seconds'):
                 validate(doc)
+
+    def test_full_cartoon_episode_has_complete_explicit_timing(self):
+        doc=json.loads((ROOT/'examples/coffee-fruit.cartoon.fixture.json').read_text())
+        validate(doc)
+        self.assertEqual(sum(s['duration_seconds'] for s in doc['shots']),44)
+        self.assertEqual(doc['production_id'],'VIDEO-2a4a0a918a3f129bcfee50ab')
+        doc['kind']='real_footage'
+        with self.assertRaisesRegex(ValueError,'requires animated content'):
+            validate(doc)
+
+    def test_partial_or_invalid_explicit_timing_fails_before_render(self):
+        doc=json.loads((ROOT/'examples/coffee-fruit.cartoon.fixture.json').read_text())
+        del doc['shots'][1]['duration_seconds']
+        with self.assertRaisesRegex(ValueError,'every shot'):validate(doc)
+        doc['shots'][1]['duration_seconds']=6
+        with self.assertRaisesRegex(ValueError,'equal the episode target'):validate(doc)
+
+    def test_cached_cartoon_opening_cannot_change_after_registration(self):
+        from egon_creative.cartoon_full import opening_cache
+        path=self.root/'opening.mp4';path.write_bytes(b'unit fixture, not an actual render')
+        key=self.store.register_asset(path,'generated_animation','isolated immutable-cache guard fixture')
+        doc={'opening_asset':{'asset_id':key,'sha256':file_hash(path),'source_in_seconds':0,'duration_seconds':8}}
+        timeline={'shots':[{'scene':'cherry','end':3},{'scene':'cherry','end':8}]}
+        self.assertEqual(opening_cache(self.store,doc,timeline,24)['id'],key)
+        with self.assertRaisesRegex(ValueError,'does not match'):
+            opening_cache(self.store,doc,{'shots':[{'scene':'cherry','end':4},{'scene':'cherry','end':8}]},24)
+        path.write_bytes(b'changed after asset registration')
+        with self.assertRaisesRegex(ValueError,'missing or changed'):opening_cache(self.store,doc,timeline,24)
 
     def test_grinding_does_not_silently_use_the_legacy_cup_scene(self):
         doc = fixture()

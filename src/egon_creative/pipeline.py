@@ -83,6 +83,8 @@ def quality(settings, doc, timeline, folder, result, raw_frames, deadline, logo)
         raise RuntimeError("H264/AAC delivery gate failed")
     if abs(duration - timeline["duration"]) > .15:
         raise RuntimeError("Encoded duration differs from approved narration timeline")
+    if doc.get('visual_style')=='cartoon_explainer_v3' and int(video.get('nb_frames',0))!=math.ceil(timeline['duration']*settings.output_fps):
+        raise RuntimeError('Full cartoon episode encoded frame count mismatch')
     deadline.run([settings.ffmpeg, "-v", "error", "-i", result, "-f", "null", "-"], folder / "decode-check.log")
     changed_pairs, comparisons = 0, 0
     if raw_frames:
@@ -120,6 +122,10 @@ def quality(settings, doc, timeline, folder, result, raw_frames, deadline, logo)
           "data_class": doc["data_class"], "deployed": False, "published": False,
           "known_paid_api_idr": 0, "output_sha256": file_hash(result)}
     qa["visual_style"] = doc.get("visual_style", "legacy_studio")
+    if doc.get('visual_style')=='cartoon_explainer_v3':
+        qa['actual_encoded_frames']=int(video['nb_frames'])
+        qa['review_samples']=len(raw_frames)
+        qa['delivery_scope']=doc.get('delivery_scope','FULL_EPISODE')
     if (folder / "logo-display.json").is_file():
         qa["logo_display"] = json.loads((folder / "logo-display.json").read_text())
     (folder / "QA.json").write_text(json.dumps(qa, ensure_ascii=False, indent=2))
@@ -154,7 +160,11 @@ def worker_once(store, settings):
         (folder / "prompt.txt").write_text(doc["visual_prompt"])
         timeline = media.speech(settings, doc, folder, deadline)
         media.check_layout(doc, timeline)
-        frames = animated(settings, timeline, folder, deadline) if doc["kind"] == "animated" else real_footage(store, settings, timeline, folder, deadline)
+        if doc['kind']=='animated' and doc.get('visual_style')=='cartoon_explainer_v3':
+            from .cartoon_full import animated as cartoon_animated
+            frames=cartoon_animated(store,settings,doc,timeline,folder,deadline)
+        else:
+            frames = animated(settings, timeline, folder, deadline) if doc["kind"] == "animated" else real_footage(store, settings, timeline, folder, deadline)
         result = media.edit(settings, doc, timeline, folder, deadline, logo)
         qa = quality(settings, doc, timeline, folder, result, frames, deadline, logo)
         store.finish(job_id, "DESIGN_REVIEW", result, qa)

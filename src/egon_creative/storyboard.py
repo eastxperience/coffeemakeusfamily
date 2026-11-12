@@ -26,9 +26,9 @@ def validate(doc):
     if doc.get("language") != "id-ID":
         raise ValueError("Indonesian narration is required")
     style = doc.get("visual_style", "legacy_studio")
-    if style not in {"legacy_studio", "focus_explainer_v2"}:
+    if style not in {"legacy_studio", "focus_explainer_v2", "cartoon_explainer_v3"}:
         raise ValueError("Unknown visual style")
-    if style == "focus_explainer_v2" and doc["kind"] != "animated":
+    if style in {"focus_explainer_v2", "cartoon_explainer_v3"} and doc["kind"] != "animated":
         raise ValueError("Focus 3D explainer style requires animated content; real footage uses its verified route")
     duration = doc.get("target_seconds", 40)
     if not isinstance(duration, (float, int)) or not math.isfinite(duration) or not 30 <= duration <= 60:
@@ -56,12 +56,18 @@ def validate(doc):
     shots = doc.get("shots", [])
     if not 3 <= len(shots) <= 12:
         raise ValueError("Use 3–12 shots")
+    if any('duration_seconds' in s for s in shots):
+        durations = [s.get('duration_seconds') for s in shots]
+        if any(not isinstance(v, (int, float)) or isinstance(v, bool) or not math.isfinite(v) or v <= 0 for v in durations):
+            raise ValueError('Explicit shot timing requires positive finite seconds on every shot')
+        if abs(sum(durations) - duration) > .001:
+            raise ValueError('Explicit shot timings must equal the episode target')
     for shot in shots:
         if shot.get("scene") not in SCENES:
             raise ValueError("Unknown reusable scene")
-        if shot["scene"] == "grind" and style != "focus_explainer_v2":
+        if shot["scene"] == "grind" and style not in {"focus_explainer_v2", "cartoon_explainer_v3"}:
             raise ValueError("Grinding scene requires the focus explainer renderer")
-        if style == "focus_explainer_v2" and not all(shot.get("motion_plan", {}).get(k) for k in ["primary_action", "camera", "learning_purpose"]):
+        if style in {"focus_explainer_v2", "cartoon_explainer_v3"} and not all(shot.get("motion_plan", {}).get(k) for k in ["primary_action", "camera", "learning_purpose"]):
             raise ValueError("Focus explainer requires a purposeful motion plan per shot")
         chunks = shot.get("narration", [])
         if not isinstance(chunks, list) or not chunks or any(not isinstance(t, str) or not t.strip() for t in chunks):

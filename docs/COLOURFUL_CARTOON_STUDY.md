@@ -1,5 +1,7 @@
 # Colourful cartoon explainer — owner review
 
+This page records the retained short study. The owner subsequently stated that 12 seconds is insufficient and requested a complete video. The full implementation is `cartoon_explainer_v3`, with `examples/coffee-fruit.cartoon.fixture.json` targeting 44 seconds across seven distinct shots. Complete the whole requested episode; the study is not the final delivery or an extra approval gate before production.
+
 The owner rejected the 36-second pilot, then clarified: **explainer perspective, colourful cartoon motion, for Gen Z**. Technical checks on that older file remain valid; aesthetic acceptance was explicitly rejected. The new short proof explores a different treatment before any full episode is presented again.
 
 This is a **12-second STYLE_STUDY**, not a completed daily episode, new daily insight, production deployment or publishing approval. The default 30–60-second production validation is unchanged. No extra daily quota is implied.

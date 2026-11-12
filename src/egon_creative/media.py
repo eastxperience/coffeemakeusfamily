@@ -46,13 +46,22 @@ def speech(settings, doc, folder, deadline):
                 raise RuntimeError("TTS produced empty audio")
             records.append({"shot": si, "text": text, "voice_seconds": duration, "source": str(aiff)})
     minimum = sum(r["voice_seconds"] + .15 for r in records)
-    duration = max(doc["target_seconds"], minimum, 30)
+    explicit = all('duration_seconds' in s for s in doc['shots'])
+    extras = {}
+    if explicit:
+        for si, shot in enumerate(doc['shots']):
+            selected = [r for r in records if r['shot'] == si]
+            needed = sum(r['voice_seconds'] + .15 for r in selected)
+            if needed > shot['duration_seconds']:
+                raise ValueError(f'Rewrite narration in shot {si+1}: measured speech exceeds its explicit duration')
+            extras[si] = (shot['duration_seconds'] - needed) / len(selected)
+    duration = doc['target_seconds'] if explicit else max(doc["target_seconds"], minimum, 30)
     if duration > 60:
         raise ValueError("Narration exceeds 60 seconds; rewrite the script before rendering")
     extra = (duration - minimum) / len(records)
     clock, wavs = 0.0, []
     for i, r in enumerate(records):
-        span = r["voice_seconds"] + .15 + extra
+        span = r["voice_seconds"] + .15 + (extras[r['shot']] if explicit else extra)
         target = audio / f"part-{i:02d}.wav"
         deadline.run([settings.ffmpeg, "-v", "error", "-y", "-i", r["source"], "-af", "apad", "-t", str(span), "-ar", "48000", "-ac", "1", target], folder / "render.log")
         r.update({"start": clock, "end": clock + span})
@@ -103,16 +112,23 @@ def check_layout(doc, timeline):
     if draw.textbbox((0, 0), doc["title"], font=font(35))[2] > 950:
         raise ValueError("Rewrite the title to fit the vertical safe area")
     motion = doc.get("visual_style") == "focus_explainer_v2"
+    cartoon = doc.get('visual_style') == 'cartoon_explainer_v3'
     for item in timeline["captions"]:
         if len(wrapped(item["text"], draw, font(54 if motion else 48))) > (2 if motion else 3):
             raise ValueError("Rewrite subtitle chunk: more than three readable lines")
     for shot in doc["shots"]:
-        if draw.textbbox((0, 0), shot.get("label", "EKSPLORASI KOPI"), font=font(60 if motion else 44))[2] > 850:
+        if cartoon:
+            if len(wrapped(shot.get('label', ''), draw, font(76), 880)) > 2:
+                raise ValueError('Rewrite cartoon headline to fit two readable lines')
+        elif draw.textbbox((0, 0), shot.get("label", "EKSPLORASI KOPI"), font=font(60 if motion else 44))[2] > 850:
             raise ValueError("Rewrite scene label to fit the vertical safe area")
 
 
 def overlays(settings, doc, timeline, folder, deadline, has_logo):
     check_layout(doc, timeline)
+    if doc.get('visual_style') == 'cartoon_explainer_v3':
+        from .cartoon_full import overlays as cartoon_overlays
+        return cartoon_overlays(settings, doc, timeline, folder, deadline, has_logo)
     if doc.get("visual_style") == "focus_explainer_v2":
         from .motion_typography import overlays as focus_overlays
         return focus_overlays(settings, doc, timeline, folder, deadline, has_logo)
@@ -226,7 +242,7 @@ def edit(settings, doc, timeline, folder, deadline, logo):
     if logo:
         # ICC is a display transform, not an artistic palette change; the master stays byte-identical.
         inputs += ["-loop", "1", "-i", logo_for_display(logo, folder)]
-        if doc.get("visual_style") == "focus_explainer_v2":
+        if doc.get("visual_style") in {"focus_explainer_v2", "cartoon_explainer_v3"}:
             filters += ["[5:v]scale=w=240:h=145:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=W-w-76:70[official]"]
         else:
             filters += ["[5:v]scale=w=350:h=220:force_original_aspect_ratio=decrease[logo]", "[branded][logo]overlay=(W-w)/2:110[official]"]
